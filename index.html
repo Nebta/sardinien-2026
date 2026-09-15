@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Persönlicher Reiseführer für Palau und La Maddalena, Sardinien – 19.–26. September 2026.">
+  <title>Sardinien 2026 · Palau & La Maddalena</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+      --cp-hero-shade: rgba(0, 0, 0, 0.45);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #e9d8a6;
+      --cp-bg-elevated: #f7f4ef;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f7f4ef;
+      --cp-border: #e9d8a6;
+      --cp-border-strong: #c56e33;
+      --cp-text: #17324d;
+      --cp-text-muted: #496a78;
+      --cp-text-soft: #6b8e23;
+      --cp-accent: #c56e33;
+      --cp-accent-hover: #ff9f1c;
+      --cp-accent-soft: rgba(197, 110, 51, 0.12);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #6b8e23;
+      --cp-danger: #c56e33;
+      --cp-warning: #ff9f1c;
+      --cp-link: #0077b6;
+      --cp-shadow: 0 18px 48px rgba(0, 119, 182, 0.18);
+      --cp-overlay: rgba(247, 244, 239, 0.76);
+      --cp-panel: rgba(255, 255, 255, 0.7);
+      --cp-panel-strong: rgba(255, 255, 255, 0.9);
+      --cp-sheen: rgba(255, 255, 255, 0.72);
+      --cp-highlight: rgba(64, 224, 208, 0.18);
+      --cp-hero-shade: rgba(0, 0, 0, 0.45);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: linear-gradient(120deg, var(--cp-panel-strong), var(--cp-overlay)), url("https://www.sardegnaturismo.it/sites/default/files/attrattori/shutterstock_191164097_la_maddalena_caprera_resize.jpg") center / cover fixed, radial-gradient(circle at 86% 12%, var(--cp-highlight), transparent 30%), linear-gradient(125deg, var(--cp-bg), var(--cp-bg-elevated)); background-blend-mode: normal, soft-light, normal, normal; color: var(--cp-text); font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.5; }
+    a { color: var(--cp-link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .topbar { position: sticky; top: 0; z-index: 1000; background: linear-gradient(90deg, var(--cp-panel-strong), var(--cp-panel)); border-bottom: 1px solid var(--cp-border); box-shadow: 0 1px 0 var(--cp-sheen), 0 7px 22px var(--cp-highlight); backdrop-filter: blur(16px); }
+    .topbar .container { display: flex; align-items: center; gap: 20px; min-height: 62px; }
+    .brand { color: var(--cp-text); font-size: 15px; font-weight: 760; letter-spacing: .04em; white-space: nowrap; }
+    .brand b { color: var(--cp-warning); }
+    .nav { display: flex; gap: 17px; overflow-x: auto; scrollbar-width: none; }
+    .nav a { color: var(--cp-text-muted); font-size: 13px; font-weight: 650; white-space: nowrap; }
+    .nav a:hover { color: var(--cp-accent); text-decoration: none; }
+    .theme-button { margin-left: auto; border: 1px solid var(--cp-border); background: var(--cp-surface); color: var(--cp-text); border-radius: .625rem; padding: 7px 10px; cursor: pointer; font: inherit; font-size: 14px; transition: transform .2s ease, border-color .2s ease; }
+    .theme-button:hover { border-color: var(--cp-warning); transform: rotate(20deg); }
+    .hero { position: relative; isolation: isolate; min-height: 100svh; display: grid; align-items: end; overflow: hidden; background-image: linear-gradient(var(--cp-hero-shade), var(--cp-hero-shade)), url("https://www.sardegnaturismo.it/sites/default/files/attrattori/shutterstock_296271209_cala_coticcio_caprera_dpvue_studio_ce_resize.jpg"); background-position: center calc(50% + var(--hero-shift, 0px)); background-size: 108%; background-blend-mode: normal; animation: heroReveal 15s ease-out both; }
+    .hero::after { display: none; }
+    @keyframes heroReveal { from { background-size: 118%; } to { background-size: 108%; } }
+    .hero-content { position: relative; padding: 76px 0 9vh; }
+    .hero-content::before { content: ""; position: absolute; z-index: -1; inset: 36px -36px -28px; border: 1px solid var(--cp-sheen); border-radius: 16px; background: linear-gradient(120deg, var(--cp-panel-strong), var(--cp-panel)); box-shadow: var(--cp-shadow); backdrop-filter: blur(12px); }
+    .eyebrow, .section-kicker { color: var(--cp-accent); font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { max-width: 880px; margin: 10px 0 15px; font-family: "Playfair Display", "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(56px, 9vw, 96px); line-height: .9; letter-spacing: -.06em; text-wrap: balance; text-shadow: 0 2px 20px var(--cp-sheen); }
+    .hero p { max-width: 650px; margin: 0; color: var(--cp-text-muted); font-size: clamp(17px, 2vw, 21px); }
+    .trip-facts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 27px; max-width: 700px; }
+    .fact { padding: 9px 12px; border: 1px solid var(--cp-sheen); border-radius: .625rem; background: var(--cp-panel-strong); color: var(--cp-text); font-size: 13px; font-weight: 650; box-shadow: 0 5px 16px var(--cp-highlight); }
+    section { padding: 68px 0; scroll-margin-top: 58px; }
+    section.alt { position: relative; isolation: isolate; overflow: hidden; background: linear-gradient(135deg, var(--cp-panel), var(--cp-overlay)), url("https://www.sardegnaturismo.it/sites/default/files/attrattori/shutterstock_191164097_la_maddalena_caprera_resize.jpg") center / cover fixed; background-blend-mode: normal, soft-light; border-block: 1px solid var(--cp-border); }
+    section.alt::before { content: ""; position: absolute; z-index: -1; inset: 0; background: radial-gradient(circle at 82% 35%, var(--cp-highlight), transparent 28%), linear-gradient(90deg, var(--cp-bg-elevated), transparent, var(--cp-bg-elevated)); }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+    h2 { margin: 4px 0 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.035em; line-height: 1.05; }
+    .lede { max-width: 600px; margin: 8px 0 0; color: var(--cp-text-muted); }
+    .card { border: 1px solid var(--cp-border); border-radius: 16px; background: var(--cp-surface); box-shadow: var(--cp-shadow), inset 0 1px 0 var(--cp-sheen); }
+    .stay { display: grid; grid-template-columns: 1.25fr .75fr; overflow: hidden; border-color: var(--cp-border-strong); }
+    .stay-main { padding: 28px; }
+    .stay-main h3 { margin: 0 0 4px; font-size: 26px; }
+    .stay-main p { margin: 0; color: var(--cp-text-muted); }
+    .stay-side { display: grid; gap: 1px; background: var(--cp-border); }
+    .stay-stat { padding: 17px 21px; background: var(--cp-surface-soft); }
+    .stay-stat span { display: block; color: var(--cp-text-soft); font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .stay-stat strong { font-family: Consolas, "Courier New", Courier, monospace; font-size: 15px; }
+    .link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .map-link { display: inline-flex; align-items: center; gap: 5px; padding: 7px 10px; border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-surface); font-size: 12px; font-weight: 700; }
+    .map-link:hover { border-color: var(--cp-accent); color: var(--cp-accent); text-decoration: none; }
+    .map-link.primary { border-color: var(--cp-link); background: var(--cp-link); color: var(--cp-accent-fg); }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+    .filter { border: 1px solid var(--cp-border); border-radius: 999px; padding: 8px 13px; background: var(--cp-surface); color: var(--cp-text-muted); cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; }
+    .filter.active, .filter:hover { background: var(--cp-link); border-color: var(--cp-link); color: var(--cp-accent-fg); }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .place { position: relative; padding: 21px; overflow: hidden; border-color: var(--cp-border-strong); transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease; }
+    .place:hover { border-color: var(--cp-link); box-shadow: var(--cp-shadow), 0 0 0 4px var(--cp-highlight); transform: translateY(-6px); }
+    .place[hidden] { display: none; }
+    .place::before { content: ""; display: block; width: 36px; height: 4px; margin-bottom: 15px; background: var(--cp-accent); border-radius: .625rem; }
+    .place[data-category="beach"]::before { background: var(--cp-link); }.place[data-category="hike"]::before { background: var(--cp-success); }.place[data-category="restaurant"]::before { background: var(--cp-warning); }
+    .place[data-category="beach"] .tag { background: var(--cp-highlight); color: var(--cp-link); }.place[data-category="hike"] .tag { background: var(--cp-highlight); color: var(--cp-success); }.place[data-category="restaurant"] .tag { background: var(--cp-highlight); color: var(--cp-warning); }
+    .place h3 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
+    .tag { display: inline-block; margin: 8px 0 11px; padding: 3px 7px; background: var(--cp-accent-soft); color: var(--cp-accent); border-radius: .625rem; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .place p { min-height: 67px; margin: 0; color: var(--cp-text-muted); font-size: 14px; }
+    dl { display: grid; grid-template-columns: minmax(88px, .65fr) 1.35fr; gap: 7px 10px; margin: 16px 0 0; border-top: 1px solid var(--cp-border); padding-top: 14px; font-size: 12px; }
+    dt { color: var(--cp-text-soft); font-weight: 700; } dd { margin: 0; color: var(--cp-text); font-weight: 600; }
+    .coordinates { font-family: Consolas, "Courier New", Courier, monospace; font-size: 11px; }
+    .itinerary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .day { position: relative; min-height: 430px; padding: 0 20px 20px; overflow: hidden; display: flex; flex-direction: column; justify-content: end; border-color: var(--cp-border-strong); background: linear-gradient(var(--cp-panel-strong), var(--cp-surface)); }
+    .day::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--day-image) center / cover; filter: saturate(1.25) contrast(1.05); opacity: .66; transition: transform .8s ease; }.day:hover::before { transform: scale(1.08); }
+    .day-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--cp-border); padding-bottom: 14px; margin-bottom: 14px; }
+    .day-top h3 { margin: 0; font-size: 20px; }.day-top time { color: var(--cp-text-soft); font-size: 12px; font-weight: 700; }
+    .schedule { display: grid; gap: 12px; }.schedule div { border-left: 3px solid var(--cp-link); padding-left: 10px; }
+    .schedule b { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }.schedule span { display: block; color: var(--cp-text-muted); font-size: 13px; }
+    .day-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; font-size: 12px; }.day-meta div { padding: 8px; background: var(--cp-surface-soft); border-radius: .625rem; }.day-meta b { display: block; color: var(--cp-text-soft); font-size: 10px; text-transform: uppercase; }.recommendation { margin: 14px 0 0; color: var(--cp-text-muted); font-size: 13px; }
+    .highlights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; counter-reset: highlight; }
+    .highlight { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 16px; background: var(--cp-surface); border: 1px solid var(--cp-border-strong); border-radius: 16px; box-shadow: inset 4px 0 0 var(--cp-warning); transition: transform .2s ease, box-shadow .2s ease; }
+    .highlight:hover { transform: translateX(6px); box-shadow: inset 4px 0 0 var(--cp-link), var(--cp-shadow); }.highlight::before { counter-increment: highlight; content: "0" counter(highlight); color: var(--cp-warning); font-family: Consolas, "Courier New", Courier, monospace; font-size: 18px; font-weight: 800; }.highlight strong { display: block; }.highlight span { color: var(--cp-text-muted); font-size: 13px; }
+    #map { position: relative; height: 560px; border: 1px solid var(--cp-border); border-radius: 16px; box-shadow: var(--cp-shadow); overflow: hidden; background: linear-gradient(var(--cp-hero-shade), var(--cp-hero-shade)), url("https://commons.wikimedia.org/wiki/Special:FilePath/La_Maddalena_Archipel_Aerial_view.jpg?width=2200") center / cover; }
+    #map::before { content: "INTERAKTIVER ARCHIPEL-ATLAS"; position: absolute; z-index: 2; left: 18px; top: 18px; padding: 7px 10px; border: 1px solid var(--cp-sheen); border-radius: .625rem; background: var(--cp-panel-strong); color: var(--cp-text-muted); font-size: 10px; font-weight: 800; letter-spacing: .11em; pointer-events: none; }
+    #map::after { content: "Palau · La Maddalena · Caprera"; position: absolute; z-index: 2; left: 18px; bottom: 18px; padding: 8px 11px; border-radius: .625rem; background: var(--cp-hero-shade); color: var(--cp-surface); font-size: 12px; font-weight: 750; letter-spacing: .04em; pointer-events: none; }
+    .map-pin { position: absolute; z-index: 3; width: 31px; height: 31px; display: grid; place-items: center; border: 2px solid var(--cp-surface); border-radius: 50% 50% 50% 0; background: var(--cp-accent); box-shadow: var(--cp-shadow); color: var(--cp-accent-fg); cursor: pointer; font: inherit; font-size: 13px; font-weight: 900; transform: translate(-50%, -100%) rotate(-45deg); transition: transform .2s ease, box-shadow .2s ease; }
+    .map-pin span { transform: rotate(45deg); }.map-pin:hover, .map-pin.active { transform: translate(-50%, -112%) rotate(-45deg) scale(1.14); box-shadow: var(--cp-shadow), 0 0 0 4px var(--cp-highlight); }.map-pin.beach { background: var(--cp-link); }.map-pin.hike { background: var(--cp-success); }.map-pin.restaurant { background: var(--cp-warning); }.map-pin.viewpoint { background: var(--cp-accent); }
+    .map-popup { position: absolute; z-index: 4; width: min(290px, calc(100% - 32px)); padding: 15px; border: 1px solid var(--cp-sheen); border-radius: 16px; background: var(--cp-panel-strong); box-shadow: var(--cp-shadow); color: var(--cp-text); transform: translate(-50%, -100%); }.map-popup[hidden] { display: none; }.map-popup b { display: block; font-size: 17px; }.map-popup span { display: block; margin: 3px 0 9px; color: var(--cp-text-muted); font-size: 13px; }.map-popup .link-row { margin-top: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 15px 0 0; color: var(--cp-text-muted); font-size: 12px; font-weight: 650; }.legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; background: var(--cp-accent); }.legend .beach::before { background: var(--cp-link); }.legend .hike::before { background: var(--cp-success); }.legend .restaurant::before { background: var(--cp-warning); }
+    .travel-moments { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 16px; }
+    .moment { min-height: 205px; padding: 25px; display: flex; flex-direction: column; justify-content: end; overflow: hidden; position: relative; border-color: var(--cp-border-strong); color: var(--cp-text); }
+    .moment::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(var(--cp-panel-strong), var(--cp-overlay)), var(--moment-image) center / cover; background-blend-mode: soft-light; transition: transform .7s ease; }
+    .moment:hover::before { transform: scale(1.06); }.moment h3 { margin: 0; font-family: "Playfair Display", "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; font-size: 26px; }.moment p { margin: 5px 0 0; color: var(--cp-text-muted); font-size: 14px; }
+    .moment em { margin-bottom: auto; color: var(--cp-accent); font-style: normal; font-size: 24px; }.countdown { font-family: "Playfair Display", "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(36px, 5vw, 54px); letter-spacing: -.05em; line-height: 1; }.weather-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }.weather-grid span { padding: 8px; background: var(--cp-panel); border: 1px solid var(--cp-sheen); border-radius: .625rem; font-size: 12px; font-weight: 700; }
+    .cinematic { position: relative; min-height: min(78vh, 720px); display: grid; align-items: end; overflow: hidden; padding: 0; background: linear-gradient(var(--cp-hero-shade), transparent, var(--cp-hero-shade)), var(--cinema-image) center / cover; background-blend-mode: normal; }
+    .cinematic::before { content: ""; position: absolute; top: 0; left: 0; width: 32%; min-width: 220px; height: 5px; background: var(--cp-warning); }.cinematic-copy { width: min(650px, calc(100% - 48px)); margin: 0 auto 9vh; padding: 25px 28px 27px; border: 1px solid var(--cp-sheen); border-left: 5px solid var(--cp-warning); border-radius: 16px; background: var(--cp-hero-shade); box-shadow: var(--cp-shadow); color: var(--cp-surface); text-shadow: 0 2px 18px var(--cp-hero-shade); backdrop-filter: blur(10px); }.cinematic-copy .section-kicker { color: var(--cp-surface); }.cinematic-copy h2 { margin-top: 7px; color: var(--cp-surface); font-family: "Playfair Display", "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(40px, 6vw, 72px); }.cinematic-copy p { max-width: 500px; margin: 12px 0 0; color: var(--cp-surface); font-size: 17px; }
+    .place-image { width: calc(100% + 42px); height: 180px; margin: -21px -21px 17px; object-fit: cover; transition: transform .7s ease; }.place:hover .place-image { transform: scale(1.06); }.place { isolation: isolate; }.place .image-frame { height: 180px; overflow: hidden; margin: -21px -21px 17px; }.place .image-frame .place-image { margin: 0; width: 100%; }
+    .rating { position: absolute; z-index: 2; top: 12px; right: 12px; padding: 5px 8px; border: 1px solid var(--cp-sheen); border-radius: 999px; background: var(--cp-surface); color: var(--cp-warning); font-size: 12px; font-weight: 800; box-shadow: var(--cp-shadow); }
+    .place-icon { margin-right: 5px; }.fade-in { opacity: 0; transform: translateY(18px); transition: opacity .65s ease, transform .65s ease; }.fade-in.visible { opacity: 1; transform: none; }
+    .sun-orb { display: none; }.hero::before { content: ""; position: absolute; z-index: -1; inset: auto 0 0; height: 35%; background: linear-gradient(transparent, var(--cp-bg)); }
+    @keyframes sunsetFloat { 50% { transform: translateY(18px) scale(.97); opacity: .36; } }
+    footer { padding: 36px 0 52px; color: var(--cp-text-muted); font-size: 13px; text-align: center; background: linear-gradient(90deg, var(--cp-bg-elevated), var(--cp-surface-soft), var(--cp-bg-elevated)); }
+    @media (max-width: 900px) { .cards, .itinerary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 620px) { .container { width: min(100% - 24px, 1180px); }.topbar .container { gap: 12px; }.nav { gap: 13px; }.brand { font-size: 13px; }.theme-button { padding: 6px 8px; }.hero { min-height: 100svh; background-size: auto 108%; }.hero-content { padding-bottom: 64px; }.hero-content::before { inset: 24px -12px -24px; } section { padding: 48px 0; }.section-heading { display: block; }.cards, .itinerary, .highlights, .stay, .travel-moments { grid-template-columns: 1fr; }.stay-side { grid-template-columns: 1fr 1fr; }.place p { min-height: auto; } #map { height: 420px; } .day { min-height: 380px; } .cinematic { min-height: 70svh; }.cinematic-copy { width: min(100% - 32px, 640px); margin-bottom: 54px; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <a class="brand" href="#oben">SARDEGNA <b>·</b> 2026</a>
+      <nav class="nav" aria-label="Seitennavigation">
+        <a href="#plan">Plan</a><a href="#orte">Orte</a><a href="#top10">Top 10</a><a href="#karte">Karte</a>
+      </nav>
+      <button class="theme-button" id="themeToggle" type="button" aria-label="Farbschema wechseln">◐</button>
+    </div>
+  </header>
+  <main id="oben">
+    <section class="hero">
+      <div class="sun-orb" aria-hidden="true"></div>
+      <div class="container hero-content">
+        <div class="eyebrow">Palau · La Maddalena · Costa Smeralda</div>
+        <h1>Sardinien<br>2026</h1>
+        <p>7 Tage zwischen türkisblauem Wasser, Granitfelsen und Dolce Vita.</p>
+        <div class="trip-facts">
+          <span class="fact">19.–26. September 2026</span><span class="fact">2 Erwachsene</span><span class="fact">Mietwagen</span><span class="fact">Basis: Palau</span>
+        </div>
+      </div>
+    </section>
+    <section id="momente" class="alt"><div class="container"><div class="travel-moments">
+      <article class="moment card" style="--moment-image:url('https://www.sardegnaturismo.it/sites/default/files/attrattori/shutterstock_270575690_palau_porto_pollo_g._maltinti.jpg_resize.jpg')"><em>☀</em><div class="countdown" id="countdown">— Tage</div><h3>Bis zum Aufbruch</h3><p>Samstag, 19. September 2026 · Schlüssel, Mietwagen, Meer.</p></article>
+      <article class="moment card" style="--moment-image:url('https://www.sardegnaturismo.it/sites/default/files/attrattori/shutterstock_191164097_la_maddalena_caprera_resize.jpg')"><em>◌</em><h3>Spätsommer in Palau</h3><p>Tagsüber 23–26 °C · Meer etwa 23 °C · perfekt für späte Badetage.</p><div class="weather-grid"><span>☀ 24 °C</span><span>◌ 23 °C Meer</span><span>↗ Mistral prüfen</span></div></article>
+      <article class="moment card" style="--moment-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/La_Maddalena_Archipel_Aerial_view.jpg?width=1600')"><em>◐</em><h3>Goldene Stunde</h3><p>Um den 20. September: Sonnenuntergang etwa 19:20 Uhr. Für Roccia dell'Orso 60 Minuten vorher losgehen.</p></article>
+    </div></div></section>
+    <section id="unterkunft">
+      <div class="container">
+        <div class="section-heading"><div><div class="section-kicker">Eure Basis</div><h2>Le Ville Le Saline</h2></div><p class="lede">Am Rand der Salinen: bewusst entspannt gelegen, mit Palau und dem Archipel direkt vor der Tür.</p></div>
+        <article class="stay card">
+          <div class="stay-main"><h3>Località Le Saline</h3><p>Località Le Saline, 07020 Palau, Italien · Private Stellplätze an der Anlage; Spiaggia Le Saline ist in wenigen Minuten erreichbar.</p><div class="link-row" id="stay-links"></div></div>
+          <div class="stay-side"><div class="stay-stat"><span>Latitude</span><strong>41.164000</strong></div><div class="stay-stat"><span>Longitude</span><strong>9.381000</strong></div><div class="stay-stat"><span>Check-in-Logik</span><strong>Auto · täglich flexibel</strong></div></div>
+        </article>
+      </div>
+    </section>
+    <section id="plan" class="alt"><div class="container"><div class="section-heading"><div><div class="section-kicker">20.–25. September</div><h2>Der Tagesrhythmus</h2></div><p class="lede">Fahrten bleiben kurz; Insel- und Costa-Smeralda-Tage sind bewusst als volle Ausflüge gesetzt.</p></div><div class="itinerary" id="itinerary"></div></div></section>
+    <section class="cinematic" style="--cinema-image:url('https://www.sardegnaturismo.it/sites/default/files/attrattori/shutterstock_296271209_cala_coticcio_caprera_dpvue_studio_ce_resize.jpg')"><div class="cinematic-copy"><div class="section-kicker">Caprera · Cala Coticcio</div><h2>Türkis, das fast unwirklich wirkt.</h2><p>Die Tahiti-Bucht ist nicht einfach ein Badestopp – sie ist der Moment, der die Reise definiert. Zugang nur gut vorbereitet und mit Rücksicht auf den Nationalpark.</p></div></section>
+    <section id="orte"><div class="container"><div class="section-heading"><div><div class="section-kicker">Kuratiert für euch</div><h2>Orte, die sich lohnen</h2></div><p class="lede">Filtern, Karte öffnen, losfahren. Zeiten sind ab Le Ville Le Saline geschätzt und ohne Sommerverkehr kalkuliert.</p></div><div class="filter-bar" role="group" aria-label="Orte filtern"><button class="filter active" data-filter="all">Alle</button><button class="filter" data-filter="beach">Strand</button><button class="filter" data-filter="hike">Wanderung</button><button class="filter" data-filter="restaurant">Restaurant</button><button class="filter" data-filter="viewpoint">Aussichtspunkt</button><button class="filter" data-filter="daytrip">Tagesausflug</button></div><div class="cards" id="places"></div></div></section>
+    <section class="cinematic" style="--cinema-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/La_Maddalena_Archipel_Aerial_view.jpg?width=2200')"><div class="cinematic-copy"><div class="section-kicker">La Maddalena Archipel</div><h2>Inseln wie aus dem Flugzeugfenster.</h2><p>Vom Wasser aus wechseln sich Granit, Pinien und helle Buchten im Minutentakt ab. Der Bootstag ist eure Perspektive auf das große Blau.</p></div></section>
+    <section id="top10" class="alt"><div class="container"><div class="section-heading"><div><div class="section-kicker">Nicht verpassen</div><h2>Top 10 Erlebnisse</h2></div><p class="lede">Eine Rangliste für die besondere Mischung aus Inselgefühl, Bewegung und Genuss.</p></div><div class="highlights" id="highlights"></div></div></section>
+    <section id="karte"><div class="container"><div class="section-heading"><div><div class="section-kicker">Orientierung</div><h2>Alles auf einer Karte</h2></div><p class="lede">Tippt einen Marker für Kartenlinks und die wichtigsten Details.</p></div><div id="map" aria-label="Interaktive Leaflet-Karte der Reiseorte"></div><div class="legend"><span>Unterkunft / Aussicht</span><span class="beach">Strand</span><span class="hike">Wanderstart</span><span class="restaurant">Restaurant</span></div></div></section>
+  </main>
+  <footer><div class="container">Sardinien 2026 · Für die Tagesform planen: Wind, Seegang, Parken und die Schutzregelungen im Nationalpark am Vorabend prüfen.</div></footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script>
+    const accommodation = { name: "Le Ville Le Saline", address: "Località Le Saline, 07020 Palau, Italy", lat: 41.1640, lng: 9.3810, type: "stay" };
+    const maps = (name, lat, lng) => ({
+      google: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+      apple: `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(name)}`
+    });
+    const beaches = [
+      ["Le Saline Beach",41.177100,9.385174,"Nahstrand","Ein langer, heller Strand neben den Salinen – ideal für den ersten oder windstillen Badetag.","Ruhig und unkompliziert, ohne den Charakter einer Hotelbucht.","2/5","Großer kostenloser Parkplatz direkt hinter dem Strand.","Vormittags oder zum Sonnenuntergang","8 Min."],
+      ["Cala Trana",41.199220,9.380622,"Wilde Bucht","Granitzunge, klares Wasser und Macchia: Cala Trana fühlt sich wie ein kleines Ziel an.","Die schönste ruhige Bucht auf Palau-Seite; der kurze Fußweg hält es angenehm leer.","2/5","Kleine unbefestigte Fläche am Wanderstart; früh ankommen.","10–13 Uhr","18 Min."],
+      ["Porto Pollo",41.179000,9.356000,"Wind & Weite","Weite Sandbucht zwischen Isola dei Gabbiani und dem Festland.","Lebendig, aber entspannt – perfekt zum Zuschauen, Essen und für windige Nachmittage.","3/5","Kostenpflichtige Plätze bei den Surfcentern, einige freie Plätze an der Zufahrt.","Später Nachmittag","20 Min."],
+      ["Cala Martinella",41.211787,9.406505,"Caprera-Feeling","Kleine, von Granit eingefasste Bucht auf dem Weg zur Inselwelt.","Ein stiller Zwischenstopp mit besonders schönem Wasser und wenig Infrastruktur.","2/5","Kleiner unbefestigter Parkplatz an der Zufahrt, dann 5–10 Min. zu Fuß.","Vormittags","29 Min."],
+      ["Cala Serena",41.228433,9.430489,"Abseits auf La Maddalena","Versteckte, natürliche Bucht mit felsigem Zugang und glasklarem Wasser.","Für einen leisen Inselmoment abseits der bekannten Panoramastraße.","1/5","Kein Parkplatz am Strand; entlang der Inselstraße parken und zu Fuß weiter.","Früh morgens","42 Min. + Fähre"],
+      ["Cala Napoletana",41.223224,9.481432,"Die Belohnung","Traumbucht an Capreras Nordostseite, die man sich zu Fuß verdient.","Intimer als die berühmten Buchten – der Fußweg schafft genau die richtige Distanz.","2/5","Parcheggio Cala Garibaldi nutzen; rund 30 Min. Küstenweg.","9–12 Uhr","48 Min. + Fähre"],
+      ["Cala Garibaldi",41.207262,9.486276,"Sanfter Inselstrand","Flacher, goldener Sand an Capreras Ostküste mit Pinien im Rücken.","Bequem zugänglich und ideal als entspannter Kontrast zu einer Wanderung.","3/5","Kostenloser Parkplatz beim Resort beziehungsweise Strandzugang.","Vormittags","45 Min. + Fähre"],
+      ["Spiaggia del Principe",41.125789,9.536969,"Costa-Smeralda-Klassiker","Zwei helle Sandbuchten zwischen rosa Granitfelsen und smaragdgrünem Wasser.","Ausnahmslos schön – am besten früh, bevor der Klassiker seine Bekanntheit zeigt.","4/5","Kostenpflichtiger Parkplatz am Zugang, etwa 10 Min. Fußweg.","Vor 10 Uhr","48 Min."],
+      ["Liscia Ruja",41.096450,9.553450,"Große Bühne","Langer, feiner Sandstrand an der Costa Smeralda mit weitem Horizont.","Viel Platz, besonders schön für einen langen Strandtag mit Komfortoptionen.","4/5","Großer kostenpflichtiger Parkplatz hinter dem Strand.","10–16 Uhr","55 Min."],
+      ["Cala Petra Ruja",41.104326,9.553279,"Roter Granit","Kleine Bucht und Felsabschnitte südlich von Liscia Ruja.","Die privatere, felsigere Schwester von Liscia Ruja – gut zum Schnorcheln.","2/5","Liscia-Ruja-Parkplatz nutzen; 10–15 Min. entlang der Küste.","Nachmittags","55 Min."]
+    ].map(([name,lat,lng,subtitle,description,why,crowd,parking,best,drive]) => ({name,lat,lng,category:"beach",subtitle,description,why,crowd,parking,best,drive}));
+    const hikes = [
+      ["Capo d'Orso Lighthouse Loop",41.178100,9.408700,"6,4 km · +209 m · 1:45–2:15 h","Leicht–mittel","Vom Bärenfelsen über Granitpfade zum Leuchtturm und zu weiten Archipelblicken.","Parkplatz Roccia dell'Orso","https://www.komoot.com/guide/611170/hiking-around-lu-palau-palau","https://www.wikiloc.com/trails/hiking/italy/sardegna/palau"],
+      ["PALAU Capo D'Orso",41.178100,9.408700,"Runde nach Komoot · ca. 6 km","Leicht–mittel","Die kompakte, sehr aussichtsreiche Variante rund um Capo d'Orso.","Parkplatz Roccia dell'Orso","https://www.komoot.com/de-de/tour/2606630585","https://www.wikiloc.com/trails/hiking/italy/sardegna/palau"],
+      ["Cala Trana Küstenwanderung",41.195800,9.366800,"7–11 km · unter +200 m · 2:00–3:00 h","Leicht","Küstenpfad durch Macchia und rosa Granit zur stillen Badebucht Cala Trana.","Zufahrt Cala Trana / Porto Rafael","https://www.komoot.com/discover/Cala_Trana/@41.1992200,9.3806220/tours","https://www.wikiloc.com/trails/hiking/italy/sardegna/palau"],
+      ["Caprera Cala Coticcio",41.185700,9.472400,"9,5 km hin & zurück · +198 m · 2:30 h","Mittel–anspruchsvoll","Der Zugang zur ikonischen Tahiti-Bucht: felsig, sonnig, spektakulär.","Caprera, Bereich Garibaldi-Museum","https://www.komoot.com/de-de/tour/2554200374","https://www.wikiloc.com/hiking-trails/cala-coticcio-caprera-25905532"],
+      ["Cala Thaiti & Cala Coticcio",41.201000,9.491000,"Küstentour · ca. 5–6 h inkl. Badestopps","Anspruchsvoll","Die ausführliche Caprera-Runde zu zwei der schönsten Buchten des Archipels.","Caprera, Zugang Cala Coticcio","https://www.komoot.com/de-de/tour/494108659","https://www.wikiloc.com/hiking-trails/cala-coticciocaprera-25427354"],
+      ["Monte Tejalone",41.183000,9.472800,"7,3 km · +212 m · 2:00–2:30 h","Mittel","Capreras höchster Punkt mit großem Rundblick auf La Maddalena, Korsika und die Buchten.","Stagnali / Garibaldi-Museum","https://www.komoot.com/de-de/tour/494882718","https://www.wikiloc.com/hiking-trails/monte-tejalone-caprera-24429125"],
+      ["Walk to Caprera up to Teialone",41.183000,9.472800,"Bergtour · ca. 2:30 h","Mittel","Eine klare, lohnende Linie zum Gipfel durch duftende Macchia und über Granit.","Stagnali, Caprera","https://www.komoot.com/guide/651817/randonnees-autour-de-la-maddalena","https://www.wikiloc.com/hiking-trails/monte-tejalone-caprera-24429125"]
+    ].map(([name,lat,lng,stats,level,description,start,komoot,gpx]) => ({name,lat,lng,category:"hike",subtitle:stats,description,level,start,komoot,gpx,drive:"20–45 Min. + ggf. Fähre"}));
+    const restaurants = [
+      ["Il Paguro",41.191500,9.380300,"Fisch & gehobene sardische Küche","€€€€","Frischer Fisch, Krustentiere, lokale Küche","Ja, unbedingt – besonders Terrasse","Via Cala Capra","Täglich 13:00–15:00 & 19:30–22:00","https://www.ristoranteilpaguro.it/"],
+      ["O'Belau",41.178000,9.381000,"Sardische Küche & Fisch","€€€","Lokale Fischgerichte, sardische Klassiker","Ja, für den Abend","Zentrum Palau","Abends; saisonal prüfen","https://www.tripadvisor.com/Restaurant_Review-g562810-d3852416-Reviews-O_Belau_Ristorante-Palau_Province_of_Olbia_Tempio_Sardinia.html"],
+      ["Pasta e Vino",41.178900,9.380000,"Hausgemachte Pasta","€€","Pasta fresca, regionale Weine","Ja, empfohlen","Zentrum Palau","Mittag & Abend; saisonal prüfen","https://www.tripadvisor.com/Restaurant_Review-g562810-d2275507-Reviews-Ristorante_Pasta_e_Vino-Palau_Province_of_Olbia_Tempio_Sardinia.html"],
+      ["Korallo Hosteria del Mare",41.178810,9.380780,"Fisch-Hosteria","€€€","Frischer Fisch, sardische Meeresküche","Ja, empfohlen","Piazza Gian Domenico Fresi 2","Di geschlossen; übrige Zeiten saisonal prüfen","https://korallohosteriadelmar.it/"],
+      ["Petra Bianca",41.185300,9.406600,"Bioweingut & Landküche","€€€","Weinverkostung, biologische Produkte, mediterrane Küche","Ja, notwendig für Verkostung","Hügel hinter Palau","Mit Reservierung; aktuelle Termine online","https://www.petra-bianca.com"],
+      ["Il Ghiottone",41.179200,9.382000,"Pizzeria & italienische Küche","€€","Pizza, Pasta, unkomplizierte Klassiker","Empfohlen","Piazza della Chiesa, Palau","Mittag & Abend; saisonal prüfen","https://www.tripadvisor.com/Restaurant_Review-g562810-d2164578-Reviews-Ristorante_Pizzeria_Il_Ghiottone-Palau_Province_of_Olbia_Tempio_Sardinia.html"],
+      ["Sa Pinta",41.178500,9.381500,"Pizzeria","€€","Pizza, italienische Küche","Empfohlen","Zentrum Palau","Mittag & Abend; saisonal prüfen","https://www.tripadvisor.com/Restaurant_Review-g562810-d3520200-Reviews-Sa_Pinta_Ristorante_Pizzeria-Palau_Province_of_Olbia_Tempio_Sardinia.html"],
+      ["Cafe del Mar",41.179400,9.380500,"Hafenbar & Pizza","€€","Pizza, Fisch, Aperitivo","Für Dinner empfohlen","Hafenbereich Palau","Tagsüber bis spät; saisonal prüfen","https://www.tripadvisor.com/Restaurant_Review-g562810-d2284384-Reviews-Cafe_Del_Mar-Palau_Province_of_Olbia_Tempio_Sardinia.html"]
+    ].map(([name,lat,lng,subtitle,price,specialties,reservation,address,hours,website]) => ({name,lat,lng,category:"restaurant",subtitle,price,specialties,reservation,address,hours,website,description:`${specialties}. ${reservation === "Ja, unbedingt – besonders Terrasse" ? "Die Meeresterrasse macht diesen Abend besonders." : "Eine starke Option für einen Abend in und um Palau."}`}));
+    const viewpoints = [
+      {name:"Roccia dell'Orso",lat:41.178100,lng:9.408700,category:"viewpoint",subtitle:"Sonnenuntergang",description:"Palau-Klassiker mit weitem Blick auf La Maddalena und die Bocche di Bonifacio.",drive:"19 Min."},
+      {name:"Belvedere di Monte Altura",lat:41.188500,lng:9.384000,category:"viewpoint",subtitle:"Granit & Panorama",description:"Kurzer, lohnender Blick über Palau und das Inselmeer.",drive:"10 Min."}
+    ];
+    const days = [
+      ["Sonntag","20.09.","Ankommen am Meer","Le Saline Beach & ruhiges Einrichten","Sonnenuntergang Roccia dell'Orso, danach Pasta e Vino","8–19 Min.","4–6 h","Nicht überplanen: Erst baden, dann mit dem besten Blick der Woche starten."],
+      ["Montag","21.09.","Capo d'Orso Loop","Cala Trana: Küstenpfad, Badestopp und Picknick","Il Paguro auf der Terrasse","18–22 Min.","6–7 h","Der ideale Palau-Tag: dramatischer Granit, Bewegung und ein sehr guter Abend."],
+      ["Dienstag","22.09.","Fähre nach La Maddalena","Panoramastraße, Cala Serena und Spaziergang im Ort","Aperitivo am Hafen, Korallo Hosteria del Mare","25 Min. + 15 Min. Fähre","7–8 h","Fähre früh nehmen; die Insel wirkt vor Mittag deutlich ruhiger."],
+      ["Mittwoch","23.09.","Caprera: Monte Tejalone","Cala Garibaldi oder Cala Napoletana zum Ausklang","Sa Pinta – entspannt und nah","25 Min. + 15 Min. Fähre","7–8 h","Wasser und festes Schuhwerk einpacken – der Gipfelblick ist die Mühe wert."],
+      ["Donnerstag","24.09.","Costa Smeralda früh: Spiaggia del Principe","Liscia Ruja & Cala Petra Ruja","Petra Bianca: Weinverkostung mit Reservierung","48–55 Min.","8 h","Die bekannten Strände gewinnen, wenn ihr sehr früh startet und am späten Nachmittag weiterzieht."],
+      ["Freitag","25.09.","Bootsausflug ab Palau: Spargi, Budelli & Santa Maria","Badestopps im Archipel; Wind- und Seegangskurs wählen","Abschlussdinner bei O'Belau oder Il Ghiottone","5 Min. zum Hafen","Ganzer Tag","Der große Finale-Tag: Tour am Vortag nur bei passender Seewetterprognose bestätigen."]
+    ];
+    const highlights = [
+      ["La Maddalena","Fähre, Hafengasse und die Panoramastraße an einem entspannten Inseltag."],["Caprera","Naturinsel, Granitpfade und die Buchten hinter jeder Kurve."],["Bootsausflug Spargi","Unbewohnte Strände und Felsen, die vom Land nicht erreichbar sind."],["Bootsausflug Budelli","Den Archipel vom Wasser erleben – mit Blick auf die berühmte Spiaggia Rosa."],["Bootsausflug Santa Maria","Nördliches Inselgefühl, helle Buchten und Wasser in allen Türkistönen."],["Sonnenuntergang Roccia dell'Orso","Kurz erreichbar, ganz große Aussicht."],["Monte Tejalone","Capreras höchster Punkt: Weitblick statt Strandliege."],["Cala Trana","Die stille Bucht als Ziel eines schönen Küstenwegs."],["Porto Pollo","Wind, Weite und ein lässiger Nachmittag am Wasser."],["Petra Bianca Weinverkostung","Ein langsamer, genussvoller Abend zwischen Reben und Granit."]
+    ];
+    const link = (href, text, primary = false) => `<a class="map-link${primary ? " primary" : ""}" href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+    const mapLinks = item => {
+      if (item.address) {
+        const address = encodeURIComponent(item.address);
+        return `${link(`https://www.google.com/maps/search/?api=1&query=${address}`,"Google Maps",true)}${link(`https://maps.apple.com/?q=${address}`,"Apple Maps")}`;
+      }
+      const m = maps(item.name,item.lat,item.lng);
+      return `${link(m.google,"Google Maps",true)}${link(m.apple,"Apple Maps")}`;
+    };
+    document.getElementById("stay-links").innerHTML = mapLinks(accommodation);
+    const travelImages = [
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1524229648276-e66561fe45a9?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1484291470158-b8f8d608850d?auto=format&fit=crop&w=900&q=85",
+      "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=85"
+    ];
+    const imageFor = (item, index = 0) => travelImages[(index + {beach:1,hike:3,restaurant:4,viewpoint:0,stay:2}[item.category || item.type] || 0) % travelImages.length];
+    document.getElementById("itinerary").innerHTML = days.map((d,i) => `<article class="day card fade-in" style="--day-image:url('${travelImages[i % travelImages.length]}')"><div class="day-top"><h3>${d[0]}</h3><time>${d[1]}</time></div><div class="schedule"><div><b>Vormittag</b><span>${d[2]}</span></div><div><b>Nachmittag</b><span>${d[3]}</span></div><div><b>Abend · Lieblingsrestaurant</b><span>${d[4]}</span></div></div><div class="day-meta"><div><b>Fahrt ab Unterkunft</b>${d[5]}</div><div><b>Zeitbedarf</b>${d[6]}</div></div><p class="recommendation"><b>Geheimtipp des Tages:</b> ${d[7]}</p></article>`).join("");
+    const placeCard = (item, index) => {
+      let facts = "";
+      if (item.category === "beach") facts = `<dt>Warum</dt><dd>${item.why}</dd><dt>Touristenlevel</dt><dd>${item.crowd}</dd><dt>Parken</dt><dd>${item.parking}</dd><dt>Beste Zeit</dt><dd>${item.best}</dd><dt>Fahrt</dt><dd>${item.drive}</dd>`;
+      if (item.category === "hike") facts = `<dt>Schwierigkeit</dt><dd>${item.level}</dd><dt>Startpunkt</dt><dd>${item.start}</dd><dt>Fahrt</dt><dd>${item.drive}</dd>`;
+      if (item.category === "restaurant") facts = `<dt>Preisniveau</dt><dd>${item.price}</dd><dt>Reservierung</dt><dd>${item.reservation}</dd><dt>Adresse</dt><dd>${item.address}</dd><dt>Öffnung</dt><dd>${item.hours}</dd>`;
+      if (item.category === "viewpoint") facts = `<dt>Fahrt</dt><dd>${item.drive}</dd><dt>Beste Zeit</dt><dd>60–30 Min. vor Sonnenuntergang</dd>`;
+      const external = item.komoot ? `${link(item.komoot,"Komoot")}${link(item.gpx,"GPX / Wikiloc")}` : item.website ? link(item.website,"Website / Reservierung") : "";
+      const label = {beach:"🏖 Strand",hike:"🥾 Wanderung",restaurant:"🍝 Restaurant",viewpoint:"🌅 Aussichtspunkt"}[item.category];
+      const rating = item.category === "restaurant" ? "◆ Genuss" : item.category === "hike" ? "◆ Aussicht" : "★ Favorit";
+      return `<article class="place card fade-in" data-category="${item.category}"><div class="image-frame"><img class="place-image" src="${imageFor(item,index)}" alt="${item.name} – Sardinien" loading="lazy"></div><span class="rating">${rating}</span><h3>${item.name}</h3><span class="tag">${label} · ${item.subtitle}</span><p>${item.description}</p><dl>${facts}<dt>📍 GPS</dt><dd class="coordinates">${item.lat.toFixed(6)}, ${item.lng.toFixed(6)}</dd></dl><div class="link-row">${mapLinks(item)}${external}</div></article>`;
+    };
+    const allPlaces = [...beaches,...hikes,...restaurants,...viewpoints];
+    document.getElementById("places").innerHTML = allPlaces.map(placeCard).join("");
+    document.getElementById("highlights").innerHTML = highlights.map(h => `<div class="highlight fade-in"><div><strong>${h[0]}</strong><span>${h[1]}</span></div></div>`).join("");
+    document.querySelectorAll(".filter").forEach(button => button.addEventListener("click", () => {
+      const filter = button.dataset.filter;
+      document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b === button));
+      document.querySelectorAll(".place").forEach(card => card.hidden = filter !== "all" && card.dataset.category !== filter && !(filter === "daytrip" && ["beach","viewpoint"].includes(card.dataset.category)));
+    }));
+    const map = document.getElementById("map");
+    const mapItems = [accommodation,...allPlaces];
+    const iconByType = {stay:"⌂",beach:"~",hike:"↟",restaurant:"+",viewpoint:"◉"};
+    const coordinateToPosition = item => ({
+      x: Math.max(7, Math.min(93, 9 + ((item.lng - 9.35) / .22) * 84)),
+      y: Math.max(14, Math.min(89, 88 - ((item.lat - 41.08) / .16) * 68))
+    });
+    const popup = document.createElement("div");
+    popup.className = "map-popup";
+    popup.hidden = true;
+    map.append(popup);
+    mapItems.forEach(item => {
+      const point = coordinateToPosition(item);
+      const pin = document.createElement("button");
+      pin.type = "button";
+      pin.className = `map-pin ${item.category || item.type}`;
+      pin.style.left = `${point.x}%`;
+      pin.style.top = `${point.y}%`;
+      pin.setAttribute("aria-label", item.name);
+      pin.innerHTML = `<span>${iconByType[item.category || item.type]}</span>`;
+      pin.addEventListener("click", () => {
+        document.querySelectorAll(".map-pin").forEach(other => other.classList.toggle("active", other === pin));
+        popup.style.left = `${Math.max(18, Math.min(82, point.x))}%`;
+        popup.style.top = `${Math.max(32, point.y)}%`;
+        popup.innerHTML = `<b>${item.name}</b><span>${item.address || item.subtitle || "Eure Unterkunft"}</span><div class="link-row">${mapLinks(item)}</div>`;
+        popup.hidden = false;
+      });
+      map.append(pin);
+    });
+    const reveal = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("visible"); reveal.unobserve(entry.target); } }), {threshold:.12});
+    document.querySelectorAll(".fade-in").forEach((element,index) => { element.style.transitionDelay = `${Math.min(index % 3, 2) * 90}ms`; reveal.observe(element); });
+    const countdown = document.getElementById("countdown");
+    const updateCountdown = () => { const diff = new Date("2026-09-19T00:00:00+02:00") - new Date(); countdown.textContent = diff > 0 ? `${Math.ceil(diff / 86400000)} Tage` : "Buon viaggio"; };
+    updateCountdown(); setInterval(updateCountdown, 3600000);
+    const hero = document.querySelector(".hero");
+    window.addEventListener("scroll", () => hero.style.setProperty("--hero-shift", `${Math.min(window.scrollY * .12, 64)}px`), {passive:true});
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      const root = document.documentElement; root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    });
+  </script>
+</body>
+</html>
